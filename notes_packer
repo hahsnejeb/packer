@@ -1,0 +1,78 @@
+# packer notes
+
+# installation
+- single binary: 
+  https://releases.hashicorp.com/packer/1.3.3/packer_1.3.3_linux_amd64.zip
+
+# terminology
+- artifacts: results of build (IDs/files to represent image)
+- builds: single task which produces image for single platform
+- builders: components of packer to create image for platform.  
+  examples of builders are ec2 and vmware
+- commands: sub-commands for packer tool (build, validate, etc)
+- post-processors: results from builder or another post-processor
+  to create a new artifact (example - compress, upload, etc)
+- provisioners: components to install/configure prior to creating
+  the image (example - shell scripts, ansible, etc)
+- templates: json files defining one or more builds
+
+# commands
+- cli tool with sub-commands
+- help displayed without any options or -h
+- help with sub-command: packer <sub> -h
+- enable machine-readable output:
+  packer -machine-readable <sub> (csv format)
+- autocomplete sub commands: packer -autocomplete-install
+
+- build: run builds from template to generate artifact
+  builds executed in parallel, unless specified otherwise
+  - some useful options:
+    -debug
+    -except=name1,name2 (dont build these)
+    -only=name1,name2
+    -parallel=false
+    -var
+    -var-file
+- fix: backwards compatability fix
+  run after upgrading packer
+- inspect: utputs components a tempalte defines from the template
+  - tells you what the template accepts, builder defined, etc
+- validate: validate sytax and configuration of template
+  - options include -var, -var-file, etc
+
+# templates
+- json structure with sets of keys to define components of packer
+  - builders: required - array of objects that defines builders
+  - description
+  - min_packer_version
+  - post-processors:  one or more objects to define post
+  - provisioners: one or more provisioner objects to define
+  - variables: key/value
+- comments: not really supported in json (unknown key error)
+  - only prefix root level key with underscore is supported:
+    "_comment": "this is a comment",
+- builders: 
+  - array of all builders used to generate image for template
+  - responsible for creating images for various platforms
+  - examples include ec2, vmware, virtualbox, etc
+  - single builder definition maps to one build
+  - json object
+  - type (key): name of builder
+  - other keys available to configure each builder type
+  - name (key): name the build (default is builder name)
+  - communicator: associated with every build.  used to establish
+    connection for provisioning remote machine.  usually ssh.
+- communicators:
+  - mechanism used to upload files, execute scripts, etc
+  - configured within the builder section
+  - 3 types: none ,ssh, winrm (some builders have custom)
+  - each communicator can have multiple configruation options:
+    "communicator": "ssh",
+    "ssh_port": "22",
+- engine:
+  - strings in templates processed by packer templating engine
+  - variables and funtions used to modify values at runtime
+  - syntax:
+    {{ }} - everything within double curly braces
+    {{timestamp}} - functions specified directly
+    
