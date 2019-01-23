@@ -75,4 +75,59 @@
   - syntax:
     {{ }} - everything within double curly braces
     {{timestamp}} - functions specified directly
-    
+    {{.Variable}} - template variables, period and capital
+  - functions:
+    - perform operations on strings.  e.g. {{timestamp}}
+      examples: "my packer created on {{timestamp}}
+    - some useful functions:
+      - build_name
+      - build_type
+      - env (environment variables)
+      - pwd, sed, split
+      - template_dir
+  - template variables:
+    - special vars set by packer at build time
+    - some builders, provisioners, components also have template
+      vars for their component
+    - recognisable with the '.' prefix.  example:
+      "execute_command": "{{.Path}}/",
+    - other useful functions:
+      - {{split "fixed-string" "-" 1}} = string
+      - {{sed}}
+- post-processors:
+  - post processing to images by the builders
+  - example, compressing files, uploading artifacts, etc
+  - results from EACH build defined builers are post-processed.
+    so post-processor will run twice if 2 are defined.
+  - 3 ways to define within the post-processor array:
+    - simple: (just a string) - {"post-processors": ["compress"]}
+    - detailed: (json object) - 
+      [{"type": "compress", "format": "tar.gz"}]
+    - sequential: combination of the above 2 but in order:
+      "post-processors": [
+        [ 
+          "compress",
+          { "type": "upload", "endpoint": "http://www.com/" }
+        ]
+      ]
+- input artifacts:
+  - artifacts from builders are discarded after post-processor
+  - "post-processors": { "keep_input_artifact": true }(to keep)
+    - will only keep to this single post-processor - not others
+  - run on specific builds only: - excepts "only" and "except"
+- provisioners:
+  - array of provisioners for packer to configure within
+    running machine prior to turning into image
+  - provisioners run for each of the builds defined
+  - specific options available within docs for provisioners
+  - minimum requirement is "type" key (name of provisioner)
+    - there are exceptions here
+  - example: { "type": "shell", "script": "myscript.sh" }
+  - can use "only" or "except" to run on specific builds only
+  - can use "override" to override default provisioner values
+    - e.g. setup a user other than "ec2-user"
+    - this configuration is then merged into the existing
+  - can use "pause_before" to pause before running
+- user variables
+  - from cli, env vars, vault, files
+  - -var -var-file
