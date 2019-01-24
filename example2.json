@@ -18,3 +18,4 @@
     "inline": ["sudo yum install -y httpd"]
   }]
 }
+
