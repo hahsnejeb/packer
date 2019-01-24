@@ -9,8 +9,12 @@
     "secret_key": "{{user `aws_secret_key`}}",
     "region": "eu-west-2",
     "instance_type": "t2.micro",
-    "ami_name": "default_ami_01",
+    "ami_name": "default_ami_02",
     "source_ami": "ami-0664a710233d7c148",
     "ssh_username": "ec2-user"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": ["sudo yum install -y httpd"]
   }]
 }
